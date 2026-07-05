@@ -14,6 +14,13 @@ protocol SearchableIndexClient: Sendable {
     func deleteSearchableItems(withIdentifiers identifiers: [String]) async throws
 }
 
+// `CSSearchableIndex` predates Swift concurrency and isn't marked `Sendable`
+// by Apple, but its methods are designed to be called from any thread. The
+// conformance is split in two: an explicit, `@unchecked` retroactive
+// `Sendable` conformance first (required — some toolchains reject an
+// implicit one obtained only via `SearchableIndexClient: Sendable` below),
+// then the protocol conformance itself.
+extension CSSearchableIndex: @retroactive @unchecked Sendable {}
 extension CSSearchableIndex: SearchableIndexClient {}
 
 /// A plain, `Sendable` snapshot of the document fields `SpotlightSync` needs.
